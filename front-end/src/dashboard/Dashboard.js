@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useRouteMatch } from "react-router-dom";
 import { listReservations } from "../utils/api";
 import { previous, next, formatAsDate } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
@@ -16,7 +17,7 @@ function Dashboard({ date }) {
 
   useEffect(loadDashboard, [reservationDate]);
 
-  console.log(reservations);
+  console.log(useRouteMatch());
 
   function loadDashboard() {
     const abortController = new AbortController();
@@ -67,7 +68,6 @@ function Dashboard({ date }) {
         <div className="container">{reservationList}</div>
       </div>
       <ErrorAlert error={reservationsError} />
-      {JSON.stringify(reservations)}
     </main>
   );
 }
