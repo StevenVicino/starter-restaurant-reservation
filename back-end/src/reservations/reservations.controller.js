@@ -38,10 +38,11 @@ function invalidTime(req, res, next) {
 
 function nanPeople(req, res, next) {
   const { people } = req.body.data;
-  if (!Number.isInteger(people) || people < 1) {
+  // const person = Number(people);
+  if (typeof people !== "number" || people < 1) {
     return next({
       status: 400,
-      message: `The people is not a valid number of people`,
+      message: `${people} is not a valid number of people`,
     });
   }
   next();
@@ -109,6 +110,31 @@ async function create(req, res, next) {
   res.status(201).json({ data });
 }
 
+async function validReservation(req, res, next) {
+  const { reservationId } = req.params;
+
+  if (!reservationId) {
+    return next({
+      status: 404,
+      message: `Please enter a reservation Id`,
+    });
+  }
+  const reservation = await reservationsService.read(reservationId);
+  if (!reservation) {
+    return next({
+      status: 404,
+      message: `${reservationId} does not exist`,
+    });
+  }
+  res.locals.reservation = reservation;
+  next();
+}
+
+function read(req, res, next) {
+  const { reservation } = res.locals;
+  res.json({ data: reservation });
+}
+
 module.exports = {
   list,
   create: [
@@ -121,4 +147,5 @@ module.exports = {
     storeOpen,
     create,
   ],
+  read: [validReservation, read],
 };
