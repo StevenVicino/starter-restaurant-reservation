@@ -14,6 +14,7 @@ function Dashboard({ date }) {
   const [reservations, setReservations] = useState([]);
   const [reservationDate, setReservationDate] = useState(date);
   const [reservationsError, setReservationsError] = useState(null);
+  const [tables, setTables] = useState([]);
 
   useEffect(loadDashboard, [reservationDate]);
 
@@ -47,6 +48,23 @@ function Dashboard({ date }) {
     </ul>
   );
 
+  const tableList = (
+    <ul>
+      {tablesController.map((table) => {
+        return (
+          <li key={table.table_id}>
+            <div className="row">
+              <div className="col">{table.table_id}</div>
+              <div className="col">{table.capacity}</div>
+              <div className="col">{table.reservation_id}</div>
+              <div className="col">{table.status}</div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
   return (
     <main>
       <h1>Dashboard</h1>
@@ -63,9 +81,13 @@ function Dashboard({ date }) {
       >
         Next Day
       </button>
+      <br />
       <div className="d-md-flex mb-3">
-        <h4 className="mb-0">Reservations for date</h4>
+        <h2 className="mb-0">Reservations for date</h2>
         <div className="container">{reservationList}</div>
+        <br />
+        <h2 className="mb-0">Reservations for date</h2>
+        <div className="container">{tableList}</div>
       </div>
       <ErrorAlert error={reservationsError} />
     </main>
