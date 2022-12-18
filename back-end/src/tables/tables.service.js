@@ -21,9 +21,17 @@ function seat(reservation_id, table_id) {
     .update({ reservation_id: reservation_id, status: "Occupied" });
 }
 
+function finish(table_id) {
+  return knex("tables")
+    .select("*")
+    .where({ table_id: table_id })
+    .update({ reservation_id: null, status: "free" });
+}
+
 module.exports = {
   read,
   list,
   create,
   seat,
+  finish,
 };

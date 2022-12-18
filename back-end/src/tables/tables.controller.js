@@ -90,6 +90,13 @@ async function seat(req, res, next) {
   res.json({ data: data });
 }
 
+async function finish(req, res, next) {
+  const { reservation_id } = res.locals.table;
+  const { table_id } = res.locals.table;
+  const data = await tableService.finish(table_id);
+  res.json({ data: data });
+}
+
 function hasCapacity(req, res, next) {
   const { people } = res.locals.reservation;
   const { capacity } = res.locals.table;
@@ -113,6 +120,17 @@ function isFull(req, res, next) {
   });
 }
 
+function isEmpty(req, res, next) {
+  const { status } = res.locals.table;
+  if (status == "Occupied") {
+    return next();
+  }
+  next({
+    status: 400,
+    message: "Table status is not occupied",
+  });
+}
+
 module.exports = {
   read: [tableExists, read],
   create: [hasProperties(props), validProps, create],
@@ -125,4 +143,5 @@ module.exports = {
     seat,
   ],
   list,
+  finish: [tableExists, isEmpty, finish],
 };

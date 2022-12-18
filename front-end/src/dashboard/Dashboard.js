@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useRouteMatch } from "react-router-dom";
-import { listReservations } from "../utils/api";
+import { listReservations, listTable, finishTable } from "../utils/api";
 import { previous, next, formatAsDate } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 
@@ -18,14 +17,13 @@ function Dashboard({ date }) {
 
   useEffect(loadDashboard, [reservationDate]);
 
-  console.log(useRouteMatch());
-
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
     listReservations({ date: reservationDate }, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
+    listTable(abortController.signal).then(setTables);
     return () => abortController.abort();
   }
 
@@ -48,9 +46,13 @@ function Dashboard({ date }) {
     </ul>
   );
 
+  function handleFinish(table_id) {
+    finishTable(table_id).then(loadDashboard);
+  }
+
   const tableList = (
     <ul>
-      {tablesController.map((table) => {
+      {tables.map((table) => {
         return (
           <li key={table.table_id}>
             <div className="row">
@@ -58,6 +60,15 @@ function Dashboard({ date }) {
               <div className="col">{table.capacity}</div>
               <div className="col">{table.reservation_id}</div>
               <div className="col">{table.status}</div>
+              {table.status === "Occupied" ? (
+                <button
+                  data-table-id-finish={table.table_id}
+                  type="button"
+                  onClick={() => handleFinish(table.table_id)}
+                >
+                  Finish
+                </button>
+              ) : null}
             </div>
           </li>
         );
@@ -86,7 +97,7 @@ function Dashboard({ date }) {
         <h2 className="mb-0">Reservations for date</h2>
         <div className="container">{reservationList}</div>
         <br />
-        <h2 className="mb-0">Reservations for date</h2>
+        <h2 className="mb-0">Tables:</h2>
         <div className="container">{tableList}</div>
       </div>
       <ErrorAlert error={reservationsError} />
