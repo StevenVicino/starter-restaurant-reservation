@@ -86,6 +86,7 @@ async function create(req, res, next) {
 async function seat(req, res, next) {
   const { reservation_id } = res.locals.reservation;
   const { table_id } = res.locals.table;
+  await tableService.seatReservation(reservation_id);
   const data = await tableService.seat(reservation_id, table_id);
   res.json({ data: data });
 }
@@ -93,8 +94,9 @@ async function seat(req, res, next) {
 async function finish(req, res, next) {
   const { reservation_id } = res.locals.table;
   const { table_id } = res.locals.table;
-  const data = await tableService.finish(table_id);
-  res.json({ data: data });
+  await tableService.finishTable(table_id);
+  await tableService.finishReservation(reservation_id);
+  res.json({ data: { status: "finished" } });
 }
 
 function hasCapacity(req, res, next) {
@@ -109,15 +111,24 @@ function hasCapacity(req, res, next) {
   next();
 }
 
-function isFull(req, res, next) {
+async function checkStatus(req, res, next) {
   const { status } = res.locals.table;
-  if (status == "free") {
-    return next();
+  const { reservation_id } = req.body.data;
+  const seated = await tableService.readByRes(reservation_id);
+  console.log(reservation_id);
+  if (status === "Occupied") {
+    return next({
+      status: 400,
+      message: "Table status is occupied",
+    });
   }
-  next({
-    status: 400,
-    message: "Table status is occupied",
-  });
+  if (seated) {
+    return next({
+      status: 400,
+      message: "Table is already seated",
+    });
+  }
+  next();
 }
 
 function isEmpty(req, res, next) {
@@ -139,7 +150,7 @@ module.exports = {
     tableExists,
     validReservation,
     hasCapacity,
-    isFull,
+    checkStatus,
     seat,
   ],
   list,
