@@ -52,13 +52,15 @@ async function list(req, res) {
   const { date } = req.query;
   if (date) {
     const data = await reservationsService.list(date);
+    const result = data.filter((res) => res.status !== "finished");
     return res.json({
-      data: data,
+      data: result,
     });
   }
   data = await reservationsService.list(new Date());
+  const result = data.filter((res) => res.status !== "finished");
   res.json({
-    data: data,
+    data: result,
   });
 }
 
@@ -105,7 +107,19 @@ function futureDate(req, res, next) {
   next();
 }
 
+function incorrectStatus(req, res, next) {
+  const { status } = req.body.data;
+  if (status && status !== "booked") {
+    return next({
+      status: 400,
+      message: `Status must not be ${status}`,
+    });
+  }
+  next();
+}
+
 async function create(req, res, next) {
+  req.body.data.status = "booked";
   const data = await reservationsService.create(req.body.data);
   res.status(201).json({ data });
 }
@@ -135,6 +149,37 @@ function read(req, res, next) {
   res.json({ data: reservation });
 }
 
+async function update(req, res, next) {
+  const updatedReservation = {
+    ...req.body.data,
+  };
+  const data = await reservationsService.update(updatedReservation);
+  res.json({ data: data });
+}
+
+function checkStatusBooked(req, res, next) {
+  if (req.body.data.status === "unknown") {
+    return next({
+      status: 400,
+      message: `Status unknown, status must equal booked to seat customer`,
+    });
+  }
+  if (res.locals.reservation.status === "finished") {
+    return next({
+      status: 400,
+      message: `Status finished, status must equal booked to seat customer`,
+    });
+  }
+  next();
+}
+
+async function newStatus(req, res, next) {
+  const { reservation_id } = res.locals.reservation;
+  const { status } = req.body.data;
+  let data = await reservationsService.newStatus(reservation_id, status);
+  res.json({ data: { status: data[0].status } });
+}
+
 module.exports = {
   list,
   create: [
@@ -145,7 +190,20 @@ module.exports = {
     notTuesday,
     futureDate,
     storeOpen,
+    incorrectStatus,
     create,
   ],
   read: [validReservation, read],
+  update: [
+    hasProperties(props),
+    validReservation,
+    invalidDate,
+    invalidTime,
+    nanPeople,
+    notTuesday,
+    futureDate,
+    storeOpen,
+    update,
+  ],
+  newStatus: [validReservation, checkStatusBooked, newStatus],
 };
