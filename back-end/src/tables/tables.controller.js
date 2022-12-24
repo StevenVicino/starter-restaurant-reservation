@@ -1,6 +1,7 @@
 const tableService = require("./tables.service");
 const reservationService = require("../reservations/reservations.service");
 const hasProperties = require("../errors/hasProperties");
+const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 const props = ["table_name", "capacity"];
 
@@ -87,8 +88,8 @@ async function seat(req, res, next) {
   const { reservation_id } = res.locals.reservation;
   const { table_id } = res.locals.table;
   await tableService.seatReservation(reservation_id);
-  const data = await tableService.seat(reservation_id, table_id);
-  res.json({ data: data });
+  await tableService.seat(reservation_id, table_id);
+  res.json({ data: { status: "seated" } });
 }
 
 async function finish(req, res, next) {
@@ -115,7 +116,6 @@ async function checkStatus(req, res, next) {
   const { status } = res.locals.table;
   const { reservation_id } = req.body.data;
   const seated = await tableService.readByRes(reservation_id);
-  console.log(reservation_id);
   if (status === "Occupied") {
     return next({
       status: 400,
@@ -143,16 +143,16 @@ function isEmpty(req, res, next) {
 }
 
 module.exports = {
-  read: [tableExists, read],
-  create: [hasProperties(props), validProps, create],
+  read: [tableExists, asyncErrorBoundary(read)],
+  create: [hasProperties(props), validProps, asyncErrorBoundary(create)],
   seat: [
     validateData,
-    tableExists,
     validReservation,
+    tableExists,
     hasCapacity,
     checkStatus,
-    seat,
+    asyncErrorBoundary(seat),
   ],
   list,
-  finish: [tableExists, isEmpty, finish],
+  finish: [tableExists, isEmpty, asyncErrorBoundary(finish)],
 };

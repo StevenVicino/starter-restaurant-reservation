@@ -3,6 +3,7 @@
  */
 const reservationsService = require("./reservations.service");
 const hasProperties = require("../errors/hasProperties");
+const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 const props = [
   "first_name",
@@ -38,7 +39,6 @@ function invalidTime(req, res, next) {
 
 function nanPeople(req, res, next) {
   const { people } = req.body.data;
-  // const person = Number(people);
   if (typeof people !== "number" || people < 1) {
     return next({
       status: 400,
@@ -49,9 +49,15 @@ function nanPeople(req, res, next) {
 }
 
 async function list(req, res) {
-  const { date } = req.query;
+  const { date, mobile_number } = req.query;
   if (date) {
-    const data = await reservationsService.list(date);
+    const data = await reservationsService.listByDate(date);
+    const result = data.filter((res) => res.status !== "finished");
+    return res.json({
+      data: result,
+    });
+  } else if (mobile_number) {
+    const data = await reservationsService.listByPhone(mobile_number);
     const result = data.filter((res) => res.status !== "finished");
     return res.json({
       data: result,
@@ -181,7 +187,7 @@ async function newStatus(req, res, next) {
 }
 
 module.exports = {
-  list,
+  list: [asyncErrorBoundary(list)],
   create: [
     hasProperties(props),
     invalidDate,
@@ -191,9 +197,9 @@ module.exports = {
     futureDate,
     storeOpen,
     incorrectStatus,
-    create,
+    asyncErrorBoundary(create),
   ],
-  read: [validReservation, read],
+  read: [validReservation, asyncErrorBoundary(read)],
   update: [
     hasProperties(props),
     validReservation,
@@ -203,7 +209,11 @@ module.exports = {
     notTuesday,
     futureDate,
     storeOpen,
-    update,
+    asyncErrorBoundary(update),
   ],
-  newStatus: [validReservation, checkStatusBooked, newStatus],
+  newStatus: [
+    validReservation,
+    checkStatusBooked,
+    asyncErrorBoundary(newStatus),
+  ],
 };

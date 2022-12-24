@@ -9,11 +9,24 @@ import React from "react";
  */
 
 function ErrorAlert({ error }) {
-  return (
-    error && (
-      <div className="alert alert-danger m-2">Error: {error.message}</div>
-    )
-  );
+  if (!error || error.length < 1) {
+    return null;
+  } else if (Array.isArray(error)) {
+    let message = [];
+    error.forEach((e) => {
+      message.push(e.message);
+    });
+    message = message.join(" and ");
+    return (
+      error && <div className="alert alert-danger m-2">Error: {message}</div>
+    );
+  } else {
+    return (
+      error && (
+        <div className="alert alert-danger m-2">Error: {error.message}</div>
+      )
+    );
+  }
 }
 
 export default ErrorAlert;

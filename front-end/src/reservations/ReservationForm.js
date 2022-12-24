@@ -1,39 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
-import { createReservation } from "../utils/api";
 
-function ReservationsNew() {
-  const initialReservation = {
-    first_name: "",
-    last_name: "",
-    mobile_number: "",
-    reservation_date: "",
-    reservation_time: "",
-    people: "",
-  };
-
+function ReservationForm({
+  formData,
+  handleChange,
+  handleSubmit,
+  reservations,
+}) {
   const history = useHistory();
-
-  const [formData, setFormData] = useState({ ...initialReservation });
-  const [error, setError] = useState(null);
-
-  const handleChange = ({ target }) => {
-    setFormData({
-      ...formData,
-      [target.name]: target.value,
-    });
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const abortController = new AbortController();
-    createReservation(formData, abortController.signal)
-      .then(() => history.push(`/dashboard/?date=${formData.reservation_date}`))
-      .catch((error) => {
-        setError(error);
-      });
-    return () => abortController.abort();
-  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -45,6 +19,7 @@ function ReservationsNew() {
           name="first_name"
           onChange={handleChange}
           value={formData.first_name}
+          placeholder={reservations.first_name}
         />
       </label>
       <br />
@@ -56,28 +31,31 @@ function ReservationsNew() {
           name="last_name"
           onChange={handleChange}
           value={formData.last_name}
+          placeholder={reservations.last_name}
         />
       </label>
       <br />
       <label htmlFor="mobile_number">
-        Please Enter Your Phone Number Without Spaces or Dashes:
+        Please Enter Your Phone Number:
         <input
           id="mobile_number"
           type="number"
           name="mobile_number"
           onChange={handleChange}
           value={formData.mobile_number}
+          placeholder={reservations.mobile_number}
         />
       </label>
       <br />
       <label htmlFor="reservation_date">
-        Please Enter Your Reservation Date YY/MM/DD:
+        Please Enter Your Reservation Date:
         <input
           id="reservation_date"
           type="date"
           name="reservation_date"
           onChange={handleChange}
           value={formData.reservation_date}
+          placeholder={reservations.reservation_date}
         />
       </label>
       <br />
@@ -89,6 +67,7 @@ function ReservationsNew() {
           name="reservation_time"
           onChange={handleChange}
           value={formData.reservation_time}
+          placeholder={reservations.reservation_time}
         />
       </label>
       <br />
@@ -100,6 +79,7 @@ function ReservationsNew() {
           name="people"
           onChange={handleChange}
           value={formData.people}
+          placeholder={reservations.people}
         />
       </label>
       <br />
@@ -111,4 +91,4 @@ function ReservationsNew() {
   );
 }
 
-export default ReservationsNew;
+export default ReservationForm;

@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import React, { useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
 import { createTable } from "../utils/api";
+import ErrorAlert from "../layout/ErrorAlert";
+import tableValidProps from "./tableValidProps";
 
 function NewTables() {
+  const { tableId } = useParams();
   const initialTable = {
     table_name: "",
     capacity: 1,
+    status: "free",
+    table_id: tableId,
   };
 
   const history = useHistory();
@@ -16,22 +21,31 @@ function NewTables() {
   const handleChange = ({ target }) => {
     setTable({
       ...table,
-      [target.name]: target.value,
+      [target.name]:
+        target.name === "capacity" && target.value
+          ? Number(target.value)
+          : target.value,
     });
   };
   const handleSubmit = (event) => {
     event.preventDefault();
     const abortController = new AbortController();
-    createTable(table, abortController.signal)
-      .then(() => history.push("/dashboard"))
-      .catch((error) => {
-        setError(error);
-      });
+    const errors = tableValidProps(table);
+    if (errors.length) {
+      setError(errors);
+    } else {
+      createTable(table, abortController.signal)
+        .then(() => {
+          history.push("/dashboard");
+        })
+        .catch(setError);
+    }
     return () => abortController.abort();
   };
 
   return (
-    <form onSumbit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
+      <ErrorAlert error={error} />
       <label htmlFor="table_name">
         Please Enter the Table Name:
         <input

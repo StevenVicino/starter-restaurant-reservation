@@ -73,9 +73,15 @@ export async function listTable(signal) {
   return await fetchJson(url, { headers, signal, method: "GET" }, []);
 }
 
-export async function finishTable(tableId) {
+export async function finishTable(tableId, signal) {
   const url = new URL(`${API_BASE_URL}/tables/${tableId}/seat`);
-  return await fetchJson(url, { method: "DELELTE" }, []);
+  const options = {
+    method: "DELETE",
+    mode: "cors",
+    headers,
+    signal,
+  };
+  return await fetchJson(url, options, []);
 }
 
 export async function createReservation(reservation, signal) {
@@ -85,6 +91,53 @@ export async function createReservation(reservation, signal) {
     mode: "cors",
     headers,
     body: JSON.stringify({ data: reservation }),
+    signal,
+  };
+  return await fetchJson(url, options);
+}
+
+export async function readReservation(reservationId, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservationId}`;
+  const options = {
+    method: "GET",
+    mode: "cors",
+    headers,
+    signal,
+  };
+  return await fetchJson(url, options);
+}
+
+export async function editReservation(reservation, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservation.reservation_id}`;
+  const options = {
+    method: "PUT",
+    mode: "cors",
+    headers,
+    body: JSON.stringify({ data: reservation }),
+    signal,
+  };
+  return await fetchJson(url, options);
+}
+
+export async function editReservationStatus(status, reservationId, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservationId}/status`;
+  const options = {
+    method: "PUT",
+    mode: "cors",
+    headers,
+    body: JSON.stringify({ data: { status: status } }),
+    signal,
+  };
+  return await fetchJson(url, options);
+}
+
+export async function seatReservation(reservationId, tableId, signal) {
+  const url = `${API_BASE_URL}/tables/${tableId}/seat`;
+  const options = {
+    method: "PUT",
+    mode: "cors",
+    headers,
+    body: JSON.stringify({ data: { reservation_id: reservationId } }),
     signal,
   };
   return await fetchJson(url, options);
