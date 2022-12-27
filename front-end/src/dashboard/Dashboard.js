@@ -23,6 +23,7 @@ function Dashboard({ date }) {
 
   useEffect(loadDashboard, [reservationDate]);
 
+  //Makes an API and retrieves the Tables and the Reservation information
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
@@ -33,50 +34,79 @@ function Dashboard({ date }) {
     return () => abortController.abort();
   }
 
+  //Creates a Reservation Table
   const reservationList = (
-    <ul>
-      {reservations.map((reservation) => {
-        return (
-          <li key={reservation.reservation_id}>
-            <div className="row">
-              <div className="col">{reservation.first_name}</div>
-              <div className="col">{reservation.last_name}</div>
-              <div className="col">{reservation.mobile_number}</div>
-              <div className="col">{reservation.reservation_date}</div>
-              <div className="col">{reservation.reservation_time}</div>
-              <div className="col">{reservation.people}</div>
-              <div className="col">{reservation.status}</div>
-              {reservation.status === "booked" ? (
-                <Link
-                  type="button"
-                  to={`/reservations/${reservation.reservation_id}/seat`}
-                >
-                  Seat
-                </Link>
-              ) : null}
-              {reservation.status === "booked" ? (
-                <Link
-                  className="button"
-                  to={`/reservations/${reservation.reservation_id}/edit`}
-                >
-                  Edit
-                </Link>
-              ) : null}
-              {reservation.status === "cancelled" ? null : (
-                <button
-                  type="button"
-                  data-reservation-id-cancel={reservation.reservation_id}
-                  onClick={() => handleCancel(reservation.reservation_id)}
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+    <div>
+      <table className="table">
+        <thead>
+          <tr>
+            <th>First Name:</th>
+            <th>Last Name:</th>
+            <th>Phone Number:</th>
+            <th>Date:</th>
+            <th>Time:</th>
+            <th>Guest Number:</th>
+            <th>Status:</th>
+            <th>Seat:</th>
+            <th>Edit:</th>
+            <th>Cancel:</th>
+          </tr>
+        </thead>
+        <tbody>
+          {reservations.map((reservation) => {
+            return (
+              <tr key={reservation.reservation_id}>
+                <td className="align-middle">{reservation.first_name}</td>
+                <td className="align-middle">{reservation.last_name}</td>
+                <td className="align-middle">{reservation.mobile_number}</td>
+                <td className="align-middle">{reservation.reservation_date}</td>
+                <td className="align-middle">{reservation.reservation_time}</td>
+                <td className="align-middle">{reservation.people}</td>
+                <td className="align-middle">{reservation.status}</td>
+                <td className="align-middle">
+                  {reservation.status === "booked" ? (
+                    <button>
+                      <Link
+                        type="button"
+                        to={`/reservations/${reservation.reservation_id}/seat`}
+                      >
+                        Seat
+                      </Link>
+                    </button>
+                  ) : null}
+                </td>
+                <td className="align-middle">
+                  {reservation.status === "booked" ? (
+                    <button>
+                      <Link
+                        className="link-dark"
+                        to={`/reservations/${reservation.reservation_id}/edit`}
+                      >
+                        Edit
+                      </Link>
+                    </button>
+                  ) : null}
+                </td>
+                <td className="align-middle">
+                  {reservation.status === "cancelled" ? null : (
+                    <button
+                      type="button"
+                      data-reservation-id-cancel={reservation.reservation_id}
+                      onClick={() => handleCancel(reservation.reservation_id)}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
+
+  //Changes reservation status to cancelled.
   async function handleCancel(reservationId) {
     const abortController = new AbortController();
     const result = window.confirm(
@@ -93,6 +123,7 @@ function Dashboard({ date }) {
     return () => abortController.abort();
   }
 
+  //Changes table status to free and deletes reservation
   async function handleFinish(table_id) {
     const abortController = new AbortController();
     const result = window.confirm(
@@ -105,60 +136,80 @@ function Dashboard({ date }) {
     return () => abortController.abort();
   }
 
+  //Creates Tables Table
   const tableList = (
-    <ul>
-      {tables.map((table) => {
-        return (
-          <li key={table.table_id}>
-            <div className="row">
-              <div className="col">{table.table_name}</div>
-              <div className="col">{table.capacity}</div>
-              <div className="col">{table.reservation_id}</div>
-              <div className="col">{table.status}</div>
-              {table.status === "Occupied" ? (
-                <button
-                  data-table-id-finish={table.table_id}
-                  type="button"
-                  onClick={() => handleFinish(table.table_id)}
-                >
-                  Finish
-                </button>
-              ) : null}
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+    <div>
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Table Name:</th>
+            <th>Capacity:</th>
+            <th>Status:</th>
+            <th>Finish:</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tables.map((table) => {
+            return (
+              <tr key={table.table_id}>
+                <td className="align-middle">{table.table_name}</td>
+                <td className="align-middle">{table.capacity}</td>
+                <td className="align-middle">{table.status}</td>
+                <td className="align-middle">
+                  {table.status === "Occupied" ? (
+                    <button
+                      data-table-id-finish={table.table_id}
+                      type="button"
+                      onClick={() => handleFinish(table.table_id)}
+                    >
+                      Finish
+                    </button>
+                  ) : null}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 
   return (
     <main>
-      <h1>Dashboard</h1>
-      <button
-        type="button"
-        onClick={() => setReservationDate(previous(reservationDate))}
-      >
-        Previous Day
-      </button>
-      <h1>{formatAsDate(reservationDate)}</h1>
-      <button type="button" onClick={() => setReservationDate(today())}>
-        Today
-      </button>
-      <button
-        type="button"
-        onClick={() => setReservationDate(next(reservationDate))}
-      >
-        Next Day
-      </button>
-      <br />
-      <div className="d-md-flex mb-3">
-        <h2 className="mb-0">Reservations for date</h2>
-        <div className="container">{reservationList}</div>
-        <br />
-        <h2 className="mb-0">Tables:</h2>
+      <header className="mb-5">
+        <h1 className="text-center bg-secondary">Dashboard</h1>
+        <h4 className="text-center">{formatAsDate(reservationDate)}</h4>
+        <div className="text-center">
+          <button
+            className="mr-3"
+            type="button"
+            onClick={() => setReservationDate(previous(reservationDate))}
+          >
+            Previous Day
+          </button>
+          <button
+            className="mr-3"
+            type="button"
+            onClick={() => setReservationDate(today())}
+          >
+            Today
+          </button>
+          <button
+            className="mr-3"
+            type="button"
+            onClick={() => setReservationDate(next(reservationDate))}
+          >
+            Next Day
+          </button>
+        </div>
+      </header>
+      <ErrorAlert error={reservationsError} />
+      <h2 className="text-center mb-1">Reservations For Date:</h2>
+      <div className="container">{reservationList}</div>
+      <div>
+        <h2 className="text-center  mb-1">Tables:</h2>
         <div className="container">{tableList}</div>
       </div>
-      <ErrorAlert error={reservationsError} />
     </main>
   );
 }

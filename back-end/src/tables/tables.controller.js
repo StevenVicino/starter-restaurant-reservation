@@ -5,6 +5,9 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 const props = ["table_name", "capacity"];
 
+//  Middleware Validation Functions
+
+//Validates if table name length is greater than two and if capacity is at least 1
 function validProps(req, res, next) {
   const { table_name, capacity } = req.body.data;
   if (table_name.length < 2) {
@@ -21,7 +24,7 @@ function validProps(req, res, next) {
   }
   next();
 }
-
+//Validates that the requisition body has data
 async function validateData(req, res, next) {
   if (!req.body.data) {
     return next({ status: 400, message: "Body must include a data object" });
@@ -29,7 +32,7 @@ async function validateData(req, res, next) {
 
   next();
 }
-
+//Validates the reservation exists
 async function validReservation(req, res, next) {
   const { reservation_id } = req.body.data;
   if (!reservation_id) {
@@ -48,7 +51,7 @@ async function validReservation(req, res, next) {
   res.locals.reservation = reservation;
   next();
 }
-
+//Validates the table exists
 async function tableExists(req, res, next) {
   const { tableId } = req.params;
   if (!tableId) {
@@ -68,6 +71,50 @@ async function tableExists(req, res, next) {
   res.locals.table = table;
   return next();
 }
+//Validates that the table has enough capacity for the reservation
+function hasCapacity(req, res, next) {
+  const { people } = res.locals.reservation;
+  const { capacity } = res.locals.table;
+  if (people > capacity) {
+    return next({
+      status: 400,
+      message: "There are too many people for the capacity of this table",
+    });
+  }
+  next();
+}
+//Checks table status to see if it is seated or Occupied
+async function checkStatus(req, res, next) {
+  const { status } = res.locals.table;
+  const { reservation_id } = req.body.data;
+  const seated = await tableService.readByRes(reservation_id);
+  if (status === "Occupied") {
+    return next({
+      status: 400,
+      message: "Table status is occupied",
+    });
+  }
+  if (seated) {
+    return next({
+      status: 400,
+      message: "Table is already seated",
+    });
+  }
+  next();
+}
+//Validates that the table is not occupied
+function isEmpty(req, res, next) {
+  const { status } = res.locals.table;
+  if (status == "Occupied") {
+    return next();
+  }
+  next({
+    status: 400,
+    message: "Table status is not occupied",
+  });
+}
+
+//   CRUD Functions
 
 function read(req, res, next) {
   const { table } = res.locals;
@@ -98,48 +145,6 @@ async function finish(req, res, next) {
   await tableService.finishTable(table_id);
   await tableService.finishReservation(reservation_id);
   res.json({ data: { status: "finished" } });
-}
-
-function hasCapacity(req, res, next) {
-  const { people } = res.locals.reservation;
-  const { capacity } = res.locals.table;
-  if (people > capacity) {
-    return next({
-      status: 400,
-      message: "There are too many people for the capacity of this table",
-    });
-  }
-  next();
-}
-
-async function checkStatus(req, res, next) {
-  const { status } = res.locals.table;
-  const { reservation_id } = req.body.data;
-  const seated = await tableService.readByRes(reservation_id);
-  if (status === "Occupied") {
-    return next({
-      status: 400,
-      message: "Table status is occupied",
-    });
-  }
-  if (seated) {
-    return next({
-      status: 400,
-      message: "Table is already seated",
-    });
-  }
-  next();
-}
-
-function isEmpty(req, res, next) {
-  const { status } = res.locals.table;
-  if (status == "Occupied") {
-    return next();
-  }
-  next({
-    status: 400,
-    message: "Table status is not occupied",
-  });
 }
 
 module.exports = {

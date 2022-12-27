@@ -28,6 +28,9 @@ function ReservationSeat() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const abortController = new AbortController();
+    if (tableId == 0) {
+      return setError(new Error("Please Select a Table"));
+    }
     seatReservation(reservationId, tableId, abortController.signal)
       .then(() => history.push(`/dashboard`))
       .catch((error) => {
@@ -41,6 +44,7 @@ function ReservationSeat() {
   } else {
     return (
       <div>
+        <h1 className="text-center bg-secondary">Seat A Reservation</h1>
         <ErrorAlert error={error} />
         <form onSubmit={handleSubmit}>
           <label htmlFor="tableNumber">
@@ -51,7 +55,7 @@ function ReservationSeat() {
               onChange={handleChange}
               value={tableId}
             >
-              <option>Please Select A Table</option>
+              <option value={0}>Please Select A Table</option>
               {tables.map((table) => {
                 return (
                   <option key={table.table_id} value={table.table_id}>
@@ -62,6 +66,7 @@ function ReservationSeat() {
               })}
             </select>
           </label>
+          <br />
           <button type="submit">Submit</button>
         </form>
       </div>

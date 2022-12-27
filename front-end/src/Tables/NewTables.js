@@ -44,33 +44,40 @@ function NewTables() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
+      <h1 className="text-center bg-secondary">New Table</h1>
       <ErrorAlert error={error} />
-      <label htmlFor="table_name">
-        Please Enter the Table Name:
-        <input
-          id="table_name"
-          type="text"
-          name="table_name"
-          onChange={handleChange}
-          value={table.table_name}
-        />
-      </label>
-      <label htmlFor="capacity">
-        Please Enter Capacity:
-        <input
-          id="capacity"
-          type="number"
-          name="capacity"
-          onChange={handleChange}
-          value={table.capacity}
-        />
-      </label>
-      <button type="submit">Submit</button>
-      <button type="cancel" onClick={() => history.go(-1)}>
-        Cancel
-      </button>
-    </form>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="table_name">
+          Please Enter the Table Name:
+          <input
+            id="table_name"
+            type="text"
+            name="table_name"
+            onChange={handleChange}
+            value={table.table_name}
+          />
+        </label>
+        <br />
+        <label htmlFor="capacity">
+          Please Enter Capacity:
+          <input
+            id="capacity"
+            type="number"
+            name="capacity"
+            onChange={handleChange}
+            value={table.capacity}
+          />
+        </label>
+        <br />
+        <button type="submit" className="mr-3">
+          Submit
+        </button>
+        <button type="cancel" onClick={() => history.go(-1)}>
+          Cancel
+        </button>
+      </form>
+    </div>
   );
 }
 

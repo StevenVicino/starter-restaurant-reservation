@@ -72,7 +72,7 @@ function ReservationForm({
       </label>
       <br />
       <label htmlFor="people">
-        Please Enter the Number of Guests In Your Party:
+        Please Enter the Number of Guests In Your Party:{" "}
         <input
           id="people"
           type="number"
@@ -83,7 +83,9 @@ function ReservationForm({
         />
       </label>
       <br />
-      <button type="submit">Submit</button>
+      <button type="submit" className="mr-3">
+        Submit
+      </button>
       <button type="cancel" onClick={() => history.go(-1)}>
         Cancel
       </button>

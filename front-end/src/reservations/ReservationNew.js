@@ -18,7 +18,7 @@ function ReservationsNew() {
 
   const [formData, setFormData] = useState({ ...initialReservation });
   const [error, setError] = useState(null);
-
+  //Catches Errors from the form and if there are none creates a new reservation
   const handleSubmit = (event) => {
     event.preventDefault();
     const abortController = new AbortController();
@@ -46,6 +46,7 @@ function ReservationsNew() {
 
   return (
     <div>
+      <h1 className="text-center bg-secondary">New Reservation</h1>
       <ErrorAlert error={error} />
       <ReservationForm
         formData={formData}
