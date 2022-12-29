@@ -7,7 +7,7 @@ import {
 } from "../utils/api";
 import { previous, next, formatAsDate, today } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useHistory } from "react-router-dom";
 
 /**
  * Defines the dashboard page.
@@ -16,12 +16,24 @@ import { Link } from "react-router-dom";
  * @returns {JSX.Element}
  */
 function Dashboard({ date }) {
+  const location = useLocation();
+  const dateQuery = location.search.slice(6);
+  const history = useHistory();
+
+  console.log(dateQuery);
+
   const [reservations, setReservations] = useState([]);
   const [reservationDate, setReservationDate] = useState(date);
   const [reservationsError, setReservationsError] = useState(null);
   const [tables, setTables] = useState([]);
 
   useEffect(loadDashboard, [reservationDate]);
+
+  useEffect(() => {
+    if (dateQuery && dateQuery !== "") {
+      setReservationDate(dateQuery);
+    }
+  }, [dateQuery, history]);
 
   //Makes an API and retrieves the Tables and the Reservation information
   function loadDashboard() {
@@ -62,12 +74,16 @@ function Dashboard({ date }) {
                 <td className="align-middle">{reservation.reservation_date}</td>
                 <td className="align-middle">{reservation.reservation_time}</td>
                 <td className="align-middle">{reservation.people}</td>
-                <td className="align-middle">{reservation.status}</td>
+                <td
+                  className="align-middle"
+                  data-reservation-id-status={reservation.reservation_id}
+                >
+                  {reservation.status}
+                </td>
                 <td className="align-middle">
                   {reservation.status === "booked" ? (
                     <button>
                       <Link
-                        type="button"
                         to={`/reservations/${reservation.reservation_id}/seat`}
                       >
                         Seat
@@ -154,9 +170,14 @@ function Dashboard({ date }) {
               <tr key={table.table_id}>
                 <td className="align-middle">{table.table_name}</td>
                 <td className="align-middle">{table.capacity}</td>
-                <td className="align-middle">{table.status}</td>
+                <td
+                  className="align-middle"
+                  data-table-id-status={table.table_id}
+                >
+                  {table.reservation_id ? "occupied" : "free"}
+                </td>
                 <td className="align-middle">
-                  {table.status === "Occupied" ? (
+                  {!table.reservation_id ? null : (
                     <button
                       data-table-id-finish={table.table_id}
                       type="button"
@@ -164,7 +185,7 @@ function Dashboard({ date }) {
                     >
                       Finish
                     </button>
-                  ) : null}
+                  )}
                 </td>
               </tr>
             );

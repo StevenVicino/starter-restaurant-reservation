@@ -20,6 +20,7 @@ function reservationEditValidation(reservation) {
   }
   const regexp = new RegExp(/^([01]\d|2[0-3]):?([0-5]\d)$/);
   if (!regexp.test(reservation_time)) {
+    console.log(reservation_time);
     errors.push(new Error(`The reservation_time is an invalid time`));
   }
   if (typeof people !== "number" || people < 1) {
@@ -34,7 +35,7 @@ function reservationEditValidation(reservation) {
   if (
     hours < 11 ||
     (hours <= 10 && min < 30) ||
-    hours > 22 ||
+    hours >= 22 ||
     (hours >= 21 && min > 30)
   ) {
     errors.push(

@@ -1,12 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 
-function ReservationForm({
-  formData,
-  handleChange,
-  handleSubmit,
-  reservations,
-}) {
+function ReservationForm({ formData, handleChange, handleSubmit }) {
   const history = useHistory();
 
   return (
@@ -19,7 +14,7 @@ function ReservationForm({
           name="first_name"
           onChange={handleChange}
           value={formData.first_name}
-          placeholder={reservations.first_name}
+          placeholder={formData.first_name}
         />
       </label>
       <br />
@@ -31,7 +26,7 @@ function ReservationForm({
           name="last_name"
           onChange={handleChange}
           value={formData.last_name}
-          placeholder={reservations.last_name}
+          placeholder={formData.last_name}
         />
       </label>
       <br />
@@ -39,11 +34,11 @@ function ReservationForm({
         Please Enter Your Phone Number:
         <input
           id="mobile_number"
-          type="number"
+          type="text"
           name="mobile_number"
           onChange={handleChange}
           value={formData.mobile_number}
-          placeholder={reservations.mobile_number}
+          placeholder={formData.mobile_number}
         />
       </label>
       <br />
@@ -53,9 +48,10 @@ function ReservationForm({
           id="reservation_date"
           type="date"
           name="reservation_date"
+          pattern="\d{4}-\d{2}-\d{2}"
           onChange={handleChange}
-          value={formData.reservation_date}
-          placeholder={reservations.reservation_date}
+          value={formData.reservation_date.slice(0, 10)}
+          placeholder={formData.reservation_date}
         />
       </label>
       <br />
@@ -65,9 +61,10 @@ function ReservationForm({
           id="reservation_time"
           type="time"
           name="reservation_time"
+          pattern="[0-9]{2}:[0-9]{2}"
           onChange={handleChange}
-          value={formData.reservation_time}
-          placeholder={reservations.reservation_time}
+          value={formData.reservation_time.slice(0, 5)}
+          placeholder={formData.reservation_time.slice(0, 5)}
         />
       </label>
       <br />
@@ -79,7 +76,7 @@ function ReservationForm({
           name="people"
           onChange={handleChange}
           value={formData.people}
-          placeholder={reservations.people}
+          placeholder={formData.people}
         />
       </label>
       <br />

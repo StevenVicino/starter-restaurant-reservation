@@ -128,7 +128,9 @@ function Search() {
             placeholder="Enter a customer's phone number"
           />
         </label>
-        <button onClick={handleSubmit}>Find</button>
+        <button onClick={handleSubmit} type="submit">
+          Find
+        </button>
       </form>
       <br />
       <div>{reservationList}</div>

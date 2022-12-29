@@ -26,7 +26,7 @@ function seat(reservation_id, table_id) {
   return knex("tables")
     .select("*")
     .where({ table_id: table_id })
-    .update({ reservation_id: reservation_id, status: "Occupied" });
+    .update({ reservation_id: reservation_id, status: "occupied" });
 }
 
 function seatReservation(reservation_id) {

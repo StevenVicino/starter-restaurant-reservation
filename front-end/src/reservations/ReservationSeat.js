@@ -28,7 +28,7 @@ function ReservationSeat() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const abortController = new AbortController();
-    if (tableId == 0) {
+    if (tableId === 0) {
       return setError(new Error("Please Select a Table"));
     }
     seatReservation(reservationId, tableId, abortController.signal)
@@ -59,8 +59,7 @@ function ReservationSeat() {
               {tables.map((table) => {
                 return (
                   <option key={table.table_id} value={table.table_id}>
-                    Table Name: {table.table_name} - Table Capacity:
-                    {table.capacity}
+                    {table.table_name} - {table.capacity}
                   </option>
                 );
               })}

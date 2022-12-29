@@ -8,7 +8,7 @@ function NewTables() {
   const { tableId } = useParams();
   const initialTable = {
     table_name: "",
-    capacity: 1,
+    capacity: "",
     status: "free",
     table_id: tableId,
   };

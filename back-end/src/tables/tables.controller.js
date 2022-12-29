@@ -88,7 +88,7 @@ async function checkStatus(req, res, next) {
   const { status } = res.locals.table;
   const { reservation_id } = req.body.data;
   const seated = await tableService.readByRes(reservation_id);
-  if (status === "Occupied") {
+  if (status === "occupied") {
     return next({
       status: 400,
       message: "Table status is occupied",
@@ -104,8 +104,8 @@ async function checkStatus(req, res, next) {
 }
 //Validates that the table is not occupied
 function isEmpty(req, res, next) {
-  const { status } = res.locals.table;
-  if (status == "Occupied") {
+  const { status, reservation_id } = res.locals.table;
+  if (reservation_id || status == "occupied") {
     return next();
   }
   next({
@@ -158,6 +158,6 @@ module.exports = {
     checkStatus,
     asyncErrorBoundary(seat),
   ],
-  list,
+  list: [asyncErrorBoundary(list)],
   finish: [tableExists, isEmpty, asyncErrorBoundary(finish)],
 };

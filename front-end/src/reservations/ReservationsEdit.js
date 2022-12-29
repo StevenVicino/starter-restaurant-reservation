@@ -21,15 +21,15 @@ function ReservationsEdit() {
   };
 
   const [error, setError] = useState(null);
-  const [reservations, setReservations] = useState({ ...initialReservation });
-  const [formData, setFormData] = useState({ ...reservations });
-
+  const [formData, setFormData] = useState({ ...initialReservation });
   useEffect(() => {
-    async function defaultReservation() {
-      const response = await readReservation(reservationId);
-      setReservations(response);
+    setError(null);
+    async function fetchData() {
+      const result = await readReservation(reservationId);
+      result.reservation_time = result.reservation_time.slice(0, 5);
+      setFormData(result);
     }
-    defaultReservation();
+    fetchData();
   }, [reservationId]);
 
   const handleChange = ({ target }) => {
@@ -42,22 +42,22 @@ function ReservationsEdit() {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const abortController = new AbortController();
     const errors = reservationEditValidation(formData);
     if (errors.length) {
-      setError(errors);
-    } else {
-      editReservation(formData, abortController.signal)
-        .then(() => {
-          history.go(-1);
-        })
-        .catch(setError);
+      return setError(errors);
+    }
+    try {
+      console.log(formData.reservation_time);
+      await editReservation(formData, abortController.signal);
+      history.push(`/dashboard?date=${formData.reservation_date}`);
+    } catch (error) {
+      setError(error);
     }
     return () => abortController.abort();
   };
-
   return (
     <div>
       <h1 className="text-center bg-secondary">Edit Reservation</h1>
@@ -66,7 +66,7 @@ function ReservationsEdit() {
         formData={formData}
         handleChange={handleChange}
         handleSubmit={handleSubmit}
-        reservations={reservations}
+        reservations={initialReservation}
       />
     </div>
   );

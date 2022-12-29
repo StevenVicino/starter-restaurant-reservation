@@ -33,7 +33,7 @@ function reservationCreateValidation(reservation) {
   if (
     hours < 11 ||
     (hours <= 10 && min < 30) ||
-    hours > 22 ||
+    hours >= 22 ||
     (hours >= 21 && min > 30)
   ) {
     errors.push(
