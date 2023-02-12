@@ -2,8 +2,6 @@
 
 This application is used by the restaurant staff. When a customer calls, the employee can record their information, search by phone number or date, can seat them at a table when they arrive and free the table when the party leaves. The app implements react router and express to build a RESTful API in order to make HTTP requests for all of the reservation data stored on the connected PostgreSQL database. It also utilizes CRUD functions and knex queries to handle data going to and coming from the database.
 
-[Live Demo](https://starter-restaurant-reservation-0k9h.onrender.com/dashboard)
-
 ## Technology
 
 - React
